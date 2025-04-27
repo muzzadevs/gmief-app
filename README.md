@@ -1,4 +1,4 @@
-# 🌟 GMIEF App - Gestor de Ministerios de la Iglesia Evangélica Filadelfia
+# 🌟 GMIEF  - Gestor de Ministerios de la Iglesia Evangélica Filadelfia
 
 Bienvenido a **GMIEF App**, una aplicación diseñada para gestionar de manera eficiente los ministerios, zonas, subzonas e iglesias de la Iglesia Evangélica Filadelfia. Este proyecto está construido con las últimas tecnologías para ofrecer una experiencia moderna, rápida y fácil de usar. 🚀
 
