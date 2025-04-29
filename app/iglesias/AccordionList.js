@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useRouter } from "next/navigation"; // Importar el router
+import useAppStore from "../../store"; // Importar la store
 import AccordionGMIEF from "../components/GmiefUI/AccordionGMIEF";
 
 const StyledButton = styled.button`
@@ -14,6 +16,10 @@ const StyledButton = styled.button`
 
 export default function AccordionList({ iglesias }) {
   const [subzonas, setSubzonas] = useState({});
+  const router = useRouter(); // Instanciar el router
+  const setIglesiaSeleccionada = useAppStore(
+    (state) => state.setIglesiaSeleccionada
+  ); // Obtener acción de la store
 
   useEffect(() => {
     const fetchSubzonas = async () => {
@@ -42,6 +48,11 @@ export default function AccordionList({ iglesias }) {
     fetchSubzonas();
   }, [iglesias]);
 
+  const handleGestionarMinisterios = (iglesia) => {
+    setIglesiaSeleccionada(iglesia); // Actualizar la iglesia seleccionada en la store
+    router.push("/ministerios"); // Redirigir a la página de ministerios
+  };
+
   const accordionItems = iglesias.map((iglesia) => ({
     title: `${iglesia.nombre} `,
     subtitle: `| ${subzonas[iglesia.subzona_id] || "Cargando..."}`,
@@ -52,9 +63,7 @@ export default function AccordionList({ iglesias }) {
           {`${iglesia.direccion}, ${iglesia.municipio}, ${iglesia.provincia}, ${iglesia.cp}`}
         </p>
 
-        <StyledButton
-          onClick={() => alert(`Gestionar ministerios de ${iglesia.nombre}`)}
-        >
+        <StyledButton onClick={() => handleGestionarMinisterios(iglesia)}>
           Gestionar Ministerios
         </StyledButton>
       </>

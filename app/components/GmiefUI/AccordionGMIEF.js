@@ -26,21 +26,18 @@ const AccordionHeader = styled.div`
   }
 `;
 
-const AccordionTitle = styled.div`
+const TitleWrapper = styled.div`
   color: #42518c;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
-const AccordionSubtitle = styled.span`
+const Subtitle = styled.span`
   color: grey;
   font-weight: 400;
   font-size: 12px;
-`;
-
-const AccordionIcon = styled.span`
-  font-size: 0.8rem;
-  color: black;
-  transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "rotate(0)")};
-  transition: transform 0.3s ease;
 `;
 
 const AccordionContent = styled.div`
@@ -50,6 +47,17 @@ const AccordionContent = styled.div`
   color: #555;
   display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
   border-top: 1px solid #ddd;
+`;
+
+const Arrow = styled.div`
+  position: relative;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #42518c;
+  transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "rotate(0deg)")};
+  transition: transform 0.3s ease;
 `;
 
 export default function AccordionGMIEF({ items }) {
@@ -64,11 +72,11 @@ export default function AccordionGMIEF({ items }) {
       {items.map((item, index) => (
         <AccordionContainer key={index}>
           <AccordionHeader onClick={() => toggleAccordion(index)}>
-            <AccordionTitle>
+            <TitleWrapper>
               {item.title}
-              <AccordionSubtitle>{item.subtitle}</AccordionSubtitle>
-            </AccordionTitle>
-            <AccordionIcon $isOpen={openIndex === index}>▼</AccordionIcon>
+              <Subtitle>{item.subtitle}</Subtitle>
+            </TitleWrapper>
+            <Arrow $isOpen={openIndex === index} />
           </AccordionHeader>
           <AccordionContent $isOpen={openIndex === index}>
             {item.content}

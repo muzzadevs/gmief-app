@@ -16,10 +16,19 @@ const PageContainer = styled.div`
   gap: 20px;
 `;
 
+const Title = styled.h4`
+  margin-left: 5px;
+  color: #42518c;
+`;
+
 export default function Iglesias() {
   const [iglesias, setIglesias] = useState([]);
   const [filteredIglesias, setFilteredIglesias] = useState([]);
   const subzonaSeleccionada = useAppStore((state) => state.subzonaSeleccionada);
+  const zonaSeleccionada = useAppStore(
+    (state) => state.zonaSeleccionada.nombre
+  );
+
   useEffect(() => {
     const fetchIglesias = async () => {
       try {
@@ -42,6 +51,7 @@ export default function Iglesias() {
   return (
     <PageContainer>
       <ZonaSubzonaSelect />
+      <Title>Iglesias de la {zonaSeleccionada}</Title>
       <AccordionList iglesias={filteredIglesias} />
     </PageContainer>
   );

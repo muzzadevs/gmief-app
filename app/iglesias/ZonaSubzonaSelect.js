@@ -10,16 +10,25 @@ const SelectContainer = styled.div`
   justify-content: space-between;
   width: 100%;
   gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 `;
 
 export default function ZonaSubzonaSelect() {
-  const { zonaSeleccionada, setZonaSeleccionada, setSubzonaSeleccionada } =
-    useAppStore();
+  const {
+    zonaSeleccionada,
+    setZonaSeleccionada,
+    subzonaSeleccionada,
+    setSubzonaSeleccionada,
+  } = useAppStore();
   const [zonas, setZonas] = useState([]);
   const [subzonas, setSubzonas] = useState([]);
   const [loadingSubzonas, setLoadingSubzonas] = useState(false);
 
-  // Obtener las zonas al cargar el componente
+  // Cargar las zonas al montar el componente
   useEffect(() => {
     const fetchZonas = async () => {
       try {
@@ -35,7 +44,7 @@ export default function ZonaSubzonaSelect() {
     fetchZonas();
   }, []);
 
-  // Obtener las subzonas cuando cambia la zona seleccionada
+  // Cargar las subzonas cuando cambia la zona seleccionada
   useEffect(() => {
     if (!zonaSeleccionada) return;
 
@@ -56,25 +65,27 @@ export default function ZonaSubzonaSelect() {
     fetchSubzonas();
   }, [zonaSeleccionada]);
 
+  // Manejar el cambio de zona
   const handleZonaChange = (event) => {
     const selectedId = event.target.value;
     const selectedZona = zonas.find((zona) => zona.id === parseInt(selectedId));
-    setZonaSeleccionada(selectedZona);
+    setZonaSeleccionada(selectedZona); // Actualizar la zona seleccionada en la store
+    setSubzonaSeleccionada(null); // Resetear la subzona seleccionada
   };
 
+  // Manejar el cambio de subzona
   const handleSubzonaChange = (event) => {
     const selectedId = event.target.value;
     const selectedSubzona = subzonas.find(
       (subzona) => subzona.id === parseInt(selectedId)
     );
-    setSubzonaSeleccionada(selectedSubzona);
+    setSubzonaSeleccionada(selectedSubzona); // Actualizar la subzona seleccionada en la store
   };
 
   return (
     <SelectContainer>
-      {/* Select de Zonas */}
       <SelectGMIEF
-        defaultValue={zonaSeleccionada?.id || ""}
+        value={zonaSeleccionada?.id || ""} // Usar value en lugar de defaultValue
         onChange={handleZonaChange}
       >
         <option value="" disabled>
@@ -87,9 +98,8 @@ export default function ZonaSubzonaSelect() {
         ))}
       </SelectGMIEF>
 
-      {/* Select de Subzonas */}
       <SelectGMIEF
-        defaultValue=""
+        value={subzonaSeleccionada?.id || ""} // Usar value en lugar de defaultValue
         onChange={handleSubzonaChange}
         disabled={loadingSubzonas || subzonas.length === 0}
       >
