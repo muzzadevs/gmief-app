@@ -24,10 +24,10 @@ const Title = styled.h4`
 export default function Iglesias() {
   const [iglesias, setIglesias] = useState([]);
   const [filteredIglesias, setFilteredIglesias] = useState([]);
+
   const subzonaSeleccionada = useAppStore((state) => state.subzonaSeleccionada);
-  const zonaSeleccionada = useAppStore(
-    (state) => state.zonaSeleccionada.nombre
-  );
+  const zona = useAppStore((state) => state.zonaSeleccionada);
+  const zonaSeleccionada = zona?.nombre || "Zona desconocida";
 
   useEffect(() => {
     const fetchIglesias = async () => {
