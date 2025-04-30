@@ -76,10 +76,15 @@ export default function ZonaSubzonaSelect() {
   // Manejar el cambio de subzona
   const handleSubzonaChange = (event) => {
     const selectedId = event.target.value;
-    const selectedSubzona = subzonas.find(
-      (subzona) => subzona.id === parseInt(selectedId)
-    );
-    setSubzonaSeleccionada(selectedSubzona); // Actualizar la subzona seleccionada en la store
+
+    if (selectedId === "all") {
+      setSubzonaSeleccionada(null); // Resetear la subzona seleccionada para mostrar todas las iglesias
+    } else {
+      const selectedSubzona = subzonas.find(
+        (subzona) => subzona.id === parseInt(selectedId)
+      );
+      setSubzonaSeleccionada(selectedSubzona); // Actualizar la subzona seleccionada en la store
+    }
   };
 
   return (
@@ -106,6 +111,7 @@ export default function ZonaSubzonaSelect() {
         <option value="" disabled>
           {loadingSubzonas ? "Cargando subzonas..." : "Seleccione una subzona"}
         </option>
+        <option value="all">Todas</option> {/* Añadir opción "Todas" */}
         {subzonas.map(({ id, nombre }) => (
           <option key={id} value={id}>
             {nombre}

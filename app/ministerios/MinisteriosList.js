@@ -3,47 +3,56 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  useDisclosure,
-  Text,
   Heading,
+  Grid,
+  GridItem,
+  Text,
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  Avatar,
+  Flex,
+  useDisclosure,
 } from "@chakra-ui/react";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-} from "@chakra-ui/react";
-import styled from "styled-components";
 import useAppStore from "../../store";
+import MinisteriosHeader from "./MinisteriosHeader";
 
-const FlexContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-`;
-
-export default function MinisteriosList({ iglesiaId }) {
-  const [ministerios, setMinisterios] = useState([]);
+export default function MinisteriosList({ iglesiaId, iglesiaNombre }) {
+  const [obreros, setObreros] = useState([]);
+  const [candidatos, setCandidatos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedMinisterio, setSelectedMinisterio] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure(); // Control del modal
   const setMinisterioSeleccionado = useAppStore(
     (state) => state.setMinisterioSeleccionado
   );
+  const setObrerosCount = useAppStore((state) => state.setObrerosCount);
+  const setCandidatosCount = useAppStore((state) => state.setCandidatosCount);
 
   useEffect(() => {
     const fetchMinisterios = async () => {
       try {
         const response = await fetch(`/api/ministerios/${iglesiaId}`);
         const data = await response.json();
-        setMinisterios(data);
+
+        const obrerosList = data.filter(
+          (ministerio) =>
+            !["Ensayista", "Candidato local", "Candidato nacional"].includes(
+              ministerio.cargos
+            )
+        );
+        const candidatosList = data.filter((ministerio) =>
+          ["Ensayista", "Candidato local", "Candidato nacional"].includes(
+            ministerio.cargos
+          )
+        );
+
+        setObreros(obrerosList);
+        setCandidatos(candidatosList);
+
+        // Actualizar los contadores en la store
+        setObrerosCount(obrerosList.length);
+        setCandidatosCount(candidatosList.length);
       } catch (error) {
         console.error("Error al obtener ministerios:", error);
       } finally {
@@ -52,13 +61,7 @@ export default function MinisteriosList({ iglesiaId }) {
     };
 
     fetchMinisterios();
-  }, [iglesiaId]);
-
-  const handleOpenModal = (ministerio) => {
-    setSelectedMinisterio(ministerio);
-    setMinisterioSeleccionado(ministerio);
-    onOpen();
-  };
+  }, [iglesiaId, setObrerosCount, setCandidatosCount]);
 
   if (loading) {
     return (
@@ -68,85 +71,59 @@ export default function MinisteriosList({ iglesiaId }) {
     );
   }
 
-  if (ministerios.length === 0) {
-    return (
-      <Text fontSize="lg" textAlign="center">
-        No hay ministerios disponibles.
-      </Text>
-    );
-  }
+  const renderMinisterios = (ministerios) =>
+    ministerios.map((ministerio) => (
+      <GridItem key={ministerio.id}>
+        <Card>
+          <CardHeader>
+            <Flex alignItems="center" gap="4">
+              <Avatar
+                name={`${ministerio.nombre} ${ministerio.apellidos}`}
+                size="md"
+                bg="teal.500"
+                sx={{ appearance: "none" }}
+              />
+              <Box>
+                <Heading size="sm" color="#2d3748">
+                  {ministerio.nombre} {ministerio.apellidos}
+                </Heading>
+                <Text fontSize="xs" color="#4a5568">
+                  {ministerio.cargos || "Sin cargos"}
+                </Text>
+              </Box>
+            </Flex>
+          </CardHeader>
+          <CardBody>
+            <Button
+              size="sm"
+              colorScheme="blue"
+              onClick={() => {
+                setMinisterioSeleccionado(ministerio);
+                onOpen(); // Abrir modal
+              }}
+            >
+              Ver Detalles
+            </Button>
+          </CardBody>
+        </Card>
+      </GridItem>
+    ));
 
   return (
-    <>
-      <FlexContainer>
-        {ministerios.map((ministerio) => (
-          <Card
-            key={ministerio.id}
-            width="300px"
-            border="1px solid #e2e8f0"
-            borderRadius="12px"
-            boxShadow="md"
-            _hover={{ boxShadow: "lg" }}
-            padding="4"
-          >
-            <CardHeader>
-              <Heading size="md" textAlign="center" color="#2d3748">
-                {ministerio.nombre} {ministerio.apellidos}
-              </Heading>
-            </CardHeader>
-            <CardBody>
-              <Text fontSize="sm" color="#4a5568" mb="4">
-                <strong>Cargos:</strong> {ministerio.cargos || "Sin cargos"}
-              </Text>
-              <Button
-                colorScheme="blue"
-                bg="#42518c"
-                color="white"
-                _hover={{ bg: "#2c3a6c" }}
-                width="100%"
-                onClick={() => handleOpenModal(ministerio)}
-              >
-                Ver Detalles
-              </Button>
-            </CardBody>
-          </Card>
-        ))}
-      </FlexContainer>
+    <Box padding="20px">
+      <Heading size="lg" mb="4" color="#42518c">
+        Obreros
+      </Heading>
+      <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap="6">
+        {renderMinisterios(obreros)}
+      </Grid>
 
-      {selectedMinisterio && (
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Detalles del Ministerio</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Text>
-                <strong>Nombre:</strong> {selectedMinisterio.nombre}{" "}
-                {selectedMinisterio.apellidos}
-              </Text>
-              <Text>
-                <strong>Alias:</strong> {selectedMinisterio.alias}
-              </Text>
-              <Text>
-                <strong>Año de Aprobación:</strong> {selectedMinisterio.aprob}
-              </Text>
-              <Text>
-                <strong>Código:</strong> {selectedMinisterio.codigo}
-              </Text>
-              <Text>
-                <strong>Teléfono:</strong> {selectedMinisterio.telefono}
-              </Text>
-              <Text>
-                <strong>Email:</strong> {selectedMinisterio.email}
-              </Text>
-              <Text>
-                <strong>Cargos:</strong>{" "}
-                {selectedMinisterio.cargos || "Sin cargos"}
-              </Text>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
-    </>
+      <Heading size="lg" mt="8" mb="4" color="#42518c">
+        Candidatos
+      </Heading>
+      <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap="6">
+        {renderMinisterios(candidatos)}
+      </Grid>
+    </Box>
   );
 }

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useRouter } from "next/navigation"; // Importar el router
-import useAppStore from "../../store"; // Importar la store
+import { useRouter } from "next/navigation";
+import useAppStore from "../../store";
 import AccordionGMIEF from "../components/GmiefUI/AccordionGMIEF";
 
 const StyledButton = styled.button`
@@ -16,13 +16,16 @@ const StyledButton = styled.button`
 
 export default function AccordionList({ iglesias }) {
   const [subzonas, setSubzonas] = useState({});
-  const router = useRouter(); // Instanciar el router
+  const subzonasRef = useRef({});
+  const router = useRouter();
   const setIglesiaSeleccionada = useAppStore(
     (state) => state.setIglesiaSeleccionada
-  ); // Obtener acción de la store
+  );
 
   useEffect(() => {
     const fetchSubzonas = async () => {
+      if (!iglesias || iglesias.length === 0) return; // No ejecutar si no hay iglesias
+
       const subzonaIds = [
         ...new Set(iglesias.map((iglesia) => iglesia.subzona_id)),
       ];
@@ -42,33 +45,41 @@ export default function AccordionList({ iglesias }) {
         }
       }
 
+      console.log("Subzonas cargadas:", subzonaData); // Depuración
       setSubzonas(subzonaData);
+      subzonasRef.current = subzonaData;
     };
 
     fetchSubzonas();
   }, [iglesias]);
 
   const handleGestionarMinisterios = (iglesia) => {
-    setIglesiaSeleccionada(iglesia); // Actualizar la iglesia seleccionada en la store
-    router.push("/ministerios"); // Redirigir a la página de ministerios
+    setIglesiaSeleccionada(iglesia);
+    router.push("/ministerios");
   };
 
-  const accordionItems = iglesias.map((iglesia) => ({
-    title: `${iglesia.nombre} `,
-    subtitle: `| ${subzonas[iglesia.subzona_id] || "Cargando..."}`,
-    content: (
-      <>
-        <p>
-          <strong>Dirección:</strong>{" "}
-          {`${iglesia.direccion}, ${iglesia.municipio}, ${iglesia.provincia}, ${iglesia.cp}`}
-        </p>
+  const sortedIglesias = [...iglesias].sort((a, b) =>
+    a.nombre.localeCompare(b.nombre)
+  );
 
-        <StyledButton onClick={() => handleGestionarMinisterios(iglesia)}>
-          Gestionar Ministerios
-        </StyledButton>
-      </>
-    ),
-  }));
+  const accordionItems = sortedIglesias.map((iglesia) => {
+    const subzonaNombre = subzonas[iglesia.subzona_id] || "Cargando...";
+    return {
+      title: `${iglesia.nombre}`,
+      subtitle: `| ${subzonaNombre}`,
+      content: (
+        <>
+          <p>
+            <strong>Dirección:</strong>{" "}
+            {`${iglesia.direccion}, ${iglesia.municipio}, ${iglesia.provincia}, ${iglesia.cp}`}
+          </p>
+          <StyledButton onClick={() => handleGestionarMinisterios(iglesia)}>
+            Gestionar Ministerios
+          </StyledButton>
+        </>
+      ),
+    };
+  });
 
   return <AccordionGMIEF items={accordionItems} />;
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
+import useAppStore from "../../store"; // Importar la store
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -12,7 +13,8 @@ const NavbarContainer = styled.nav`
   color: white;
 `;
 
-const LogoContainer = styled(Link)`
+const LogoContainer = styled.div`
+  // Cambiado de 'a' a 'div'
   cursor: pointer;
   margin-left: 2rem;
   padding: 5px 20px;
@@ -23,9 +25,17 @@ const LogoContainer = styled(Link)`
 `;
 
 const Navbar = () => {
+  const resetStore = useAppStore((state) => state.resetStore); // Obtener la acción resetStore
+
+  const handleLogoClick = () => {
+    resetStore(); // Limpiar la store al hacer clic en el logo
+  };
+
   return (
     <NavbarContainer>
-      <LogoContainer href={"/"}>GMIEF</LogoContainer>
+      <Link href="/" passHref>
+        <LogoContainer onClick={handleLogoClick}>GMIEF</LogoContainer>
+      </Link>
     </NavbarContainer>
   );
 };

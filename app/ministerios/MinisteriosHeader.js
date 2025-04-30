@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
+import useAppStore from "../../store";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -26,8 +27,18 @@ const Title = styled.h4`
   margin: 0;
 `;
 
+const Tag = styled.span`
+  background-color: #42518c;
+  color: rgb(255, 255, 255);
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+`;
+
 export default function MinisteriosHeader({ iglesiaNombre }) {
   const router = useRouter();
+  const obrerosCount = useAppStore((state) => state.obrerosCount);
+  const candidatosCount = useAppStore((state) => state.candidatosCount);
 
   const handleVolver = () => {
     router.push("/iglesias");
@@ -36,7 +47,16 @@ export default function MinisteriosHeader({ iglesiaNombre }) {
   return (
     <HeaderContainer>
       <StyledButton onClick={handleVolver}>Volver</StyledButton>
-      <Title>Ministerios de la Iglesia {iglesiaNombre}</Title>
+      <Title>
+        Ministerios de la Iglesia {iglesiaNombre}
+        <br />
+        <Tag>
+          <strong>Obreros:</strong> {obrerosCount}
+        </Tag>{" "}
+        <Tag>
+          <strong>Candidatos:</strong> {candidatosCount}
+        </Tag>
+      </Title>
     </HeaderContainer>
   );
 }
